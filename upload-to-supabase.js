@@ -2,19 +2,33 @@ import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const supabaseUrl = 'https://wqyasyjvpsnwahpltlpx.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxeWFzeWp2cHNud2FocGx0bHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NDcyNjMsImV4cCI6MjA3ODAyMzI2M30.dw1YUw9SPDAaAO1f9QNJKQ8fnWBeT5zB189ZEWbfrFQ';
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('❌ Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE in .env');
+  process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function uploadImages() {
-  const publicDir = path.join(__dirname, 'public');
-  const imageFiles = fs.readdirSync(publicDir)
-    .filter(file => (file.endsWith('.jpg') || file.endsWith('.png')) && file !== 'LOGO PLKV.png')
+  const importDir = path.join(__dirname, 'import');
+
+  if (!fs.existsSync(importDir)) {
+    console.error('❌ No "import" folder found. Create one and add your images.');
+    process.exit(1);
+  }
+
+  const imageFiles = fs.readdirSync(importDir)
+    .filter(file => /\.(jpg|jpeg|png)$/i.test(file))
     .sort();
 
   console.log(`Found ${imageFiles.length} images to upload`);
@@ -48,7 +62,7 @@ async function uploadImages() {
 
   for (let i = 0; i < imageFiles.length; i++) {
     const filename = imageFiles[i];
-    const filePath = path.join(publicDir, filename);
+    const filePath = path.join(importDir, filename);
     const storagePath = `maite-maria/${filename}`;
 
     try {
