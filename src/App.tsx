@@ -5,6 +5,8 @@ import JSZip from 'jszip';
 import { Hero } from './components/Hero';
 import { GalleryImage } from './components/GalleryImage';
 import { ImageViewer } from './components/ImageViewer';
+import { getImageUrl } from './lib/supabase';
+import type { ImageData } from './types';
 
 function App() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -59,9 +61,11 @@ function App() {
 
       for (let i = 0; i < images.length; i++) {
         try {
-          const response = await fetch(images[i]);
+          const img = images[i] as ImageData;
+          const url = getImageUrl(img.bucket, img.path, { format: 'origin' });
+          const response = await fetch(url);
           const blob = await response.blob();
-          const filename = images[i].split('/').pop() || `image-${i + 1}.jpg`;
+          const filename = img.path.split('/').pop() || `image-${i + 1}.jpg`;
           folder?.file(filename, blob);
         } catch (error) {
           console.error(`Failed to download image ${i + 1}:`, error);
@@ -94,12 +98,16 @@ function App() {
     });
   }, []);
 
-  const visibleImages = images.slice(0, visibleCount);
+  const visibleImages = (images as ImageData[]).slice(0, visibleCount);
   const selectedImage = selectedIndex !== null ? images[selectedIndex] : null;
+
+  const firstImageUrl = images[0]
+    ? getImageUrl((images[0] as ImageData).bucket, (images[0] as ImageData).path, { width: 1920, quality: 85 })
+    : '';
 
   return (
     <div className="min-h-screen bg-white">
-      <Hero heroImage={images[0]} onViewGallery={scrollToGallery} />
+      <Hero heroImage={firstImageUrl} onViewGallery={scrollToGallery} />
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-16" ref={galleryRef}>
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-6">
@@ -149,15 +157,25 @@ function App() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {visibleImages.map((src, index) => (
-            <GalleryImage
-              key={index}
-              src={src}
-              index={index}
-              onView={() => setSelectedIndex(index)}
-              onDownload={() => handleDownload(src)}
-            />
-          ))}
+          {visibleImages.map((img, index) => {
+            const thumbUrl = getImageUrl(img.bucket, img.path, { width: 480, quality: 75 });
+            const mediumUrl = getImageUrl(img.bucket, img.path, { width: 960, quality: 75 });
+            const largeUrl = getImageUrl(img.bucket, img.path, { width: 1280, quality: 75 });
+            const originalUrl = getImageUrl(img.bucket, img.path, { format: 'origin' });
+
+            return (
+              <GalleryImage
+                key={img.id}
+                thumbUrl={thumbUrl}
+                mediumUrl={mediumUrl}
+                largeUrl={largeUrl}
+                title={img.title || ''}
+                index={index}
+                onView={() => setSelectedIndex(index)}
+                onDownload={() => handleDownload(originalUrl)}
+              />
+            );
+          })}
         </div>
 
         {visibleCount < images.length && (
@@ -177,13 +195,13 @@ function App() {
 
       {selectedImage !== null && selectedIndex !== null && (
         <ImageViewer
-          image={selectedImage}
+          image={getImageUrl((selectedImage as ImageData).bucket, (selectedImage as ImageData).path, { width: 1920, quality: 85 })}
           currentIndex={selectedIndex}
           totalImages={images.length}
           onClose={() => setSelectedIndex(null)}
           onNext={() => navigateImage('next')}
           onPrev={() => navigateImage('prev')}
-          onDownload={() => handleDownload(selectedImage)}
+          onDownload={() => handleDownload(getImageUrl((selectedImage as ImageData).bucket, (selectedImage as ImageData).path, { format: 'origin' }))}
         />
       )}
     </div>

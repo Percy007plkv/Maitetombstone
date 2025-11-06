@@ -1,43 +1,52 @@
-# Image Setup Instructions
+# Gallery Setup - Supabase Storage with CDN Transforms
 
-Your gallery is ready, but the images need to be uploaded to Supabase Storage to work properly.
+Your gallery uses Supabase Storage with on-the-fly image transforms for optimal performance.
 
-## Option 1: Upload via Supabase Dashboard (Recommended)
+## Architecture
 
-1. Go to https://wqyasyjvpsnwahpltlpx.supabase.co
-2. Navigate to **Storage** in the left sidebar
-3. Click **Create a new bucket**
-   - Name: `gallery-images`
-   - Public bucket: **Yes** (toggle on)
-   - File size limit: 10MB
-4. Click **Create bucket**
-5. Click on the `gallery-images` bucket
-6. Click **Upload files**
-7. Select all your photos from the `public` folder
-8. Wait for upload to complete
-9. Run: `npm run generate-urls`
+- **Database**: `images` table stores metadata (path, title, tags, size)
+- **Storage**: `gallery` bucket (public) stores actual image files
+- **CDN**: Supabase's render API creates optimized WebP versions on-demand
+- **Performance**: Thumbnails ~20-70 KB, Medium ~60-150 KB, Full ~150-300 KB
 
-## Option 2: Automated Upload Script
+## Quick Setup
 
-If you have Node.js access to the original images:
+### 1. Upload Images
 
 ```bash
 npm run upload-images
 ```
 
 This will:
-- Create the Supabase Storage bucket
-- Upload all images from your public folder
-- Automatically update `imageData.ts` with the correct URLs
-- Make your gallery work immediately
+- Create the `gallery` bucket (public)
+- Upload all images from `public/` to `gallery/maite-maria/`
+- Save metadata to the `images` database table
 
-## What happens next?
+### 2. Generate Image Data
 
-Once images are uploaded to Supabase Storage, your gallery will:
-- Load instantly
-- Work reliably across all browsers
-- Have proper CDN caching
-- Support progressive image loading
-- Enable batch downloads
+```bash
+npm run generate-urls
+```
 
-The gallery is already built with all features ready to go!
+This fetches metadata and creates `src/imageData.ts`.
+
+### 3. Done!
+
+Your gallery is production-ready with CDN-optimized WebP images.
+
+## How It Works
+
+The gallery uses Supabase's render API:
+- **Thumbnails** (480px): Grid view
+- **Medium** (960px): Default desktop view
+- **Large** (1280px): High-res displays
+- **Original**: Downloads only
+
+All use WebP format with quality=75 for optimal performance.
+
+## Manual Upload (Alternative)
+
+1. Visit https://wqyasyjvpsnwahpltlpx.supabase.co
+2. Storage → Create bucket → Name: `gallery` → Public: ON
+3. Upload to `maite-maria/` folder
+4. Run: `npm run generate-urls`

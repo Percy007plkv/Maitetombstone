@@ -12,42 +12,30 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function generateUrls() {
-  console.log('Fetching images from Supabase Storage...');
+  console.log('Fetching images from database...');
 
-  const { data, error } = await supabase.storage
-    .from('gallery-images')
-    .list('', {
-      limit: 1000,
-      sortBy: { column: 'name', order: 'asc' }
-    });
+  const { data, error } = await supabase
+    .from('images')
+    .select('*')
+    .order('created_at', { ascending: true });
 
   if (error) {
     console.error('Error:', error.message);
     console.log('\nMake sure you have:');
-    console.log('1. Created the "gallery-images" bucket in Supabase');
-    console.log('2. Set it as a PUBLIC bucket');
-    console.log('3. Uploaded your images to it');
+    console.log('1. Created the "gallery" bucket in Supabase (public)');
+    console.log('2. Run: npm run upload-images');
     return;
   }
 
   if (!data || data.length === 0) {
-    console.log('No images found in the gallery-images bucket.');
-    console.log('Please upload your images to Supabase Storage first.');
+    console.log('No images found in the database.');
+    console.log('Run: npm run upload-images first');
     return;
   }
 
-  const urls = data
-    .filter(file => file.name.endsWith('.jpg') || file.name.endsWith('.png'))
-    .map(file => {
-      const { data: urlData } = supabase.storage
-        .from('gallery-images')
-        .getPublicUrl(file.name);
-      return urlData.publicUrl;
-    });
+  console.log(`Found ${data.length} images`);
 
-  console.log(`Found ${urls.length} images`);
-
-  const imageDataContent = `export const images = [\n  '${urls.join("',\\n  '")}'\n];\n`;
+  const imageDataContent = `export const images = ${JSON.stringify(data, null, 2)};\n`;
   fs.writeFileSync(path.join(__dirname, 'src', 'imageData.ts'), imageDataContent);
 
   console.log('✓ Updated imageData.ts successfully!');

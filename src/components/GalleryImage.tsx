@@ -2,18 +2,29 @@ import { useState } from 'react';
 import { Download, Heart, Share2, Maximize2 } from 'lucide-react';
 
 interface GalleryImageProps {
-  src: string;
+  thumbUrl: string;
+  mediumUrl: string;
+  largeUrl: string;
+  title: string;
   index: number;
   onView: () => void;
   onDownload: () => void;
 }
 
-export function GalleryImage({ src, index, onView, onDownload }: GalleryImageProps) {
+export function GalleryImage({
+  thumbUrl,
+  mediumUrl,
+  largeUrl,
+  title,
+  index,
+  onView,
+  onDownload
+}: GalleryImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
   return (
-    <div className="group relative overflow-hidden bg-gray-100 rounded-sm">
+    <div className="group relative overflow-hidden bg-gray-100 rounded-sm cursor-pointer">
       {!isLoaded && !hasError && (
         <div className="absolute inset-0 animate-pulse bg-gray-200" />
       )}
@@ -24,8 +35,10 @@ export function GalleryImage({ src, index, onView, onDownload }: GalleryImagePro
         </div>
       ) : (
         <img
-          src={src}
-          alt={`Gallery image ${index + 1}`}
+          src={mediumUrl}
+          srcSet={`${thumbUrl} 480w, ${mediumUrl} 960w, ${largeUrl} 1280w`}
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+          alt={title || `Gallery image ${index + 1}`}
           className={`w-full h-auto transition-all duration-500 ${
             isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
           } group-hover:scale-105`}

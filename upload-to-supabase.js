@@ -14,7 +14,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 async function uploadImages() {
   const publicDir = path.join(__dirname, 'public');
   const imageFiles = fs.readdirSync(publicDir)
-    .filter(file => file.endsWith('.jpg') || file.endsWith('.png'))
+    .filter(file => (file.endsWith('.jpg') || file.endsWith('.png')) && file !== 'LOGO PLKV.png')
     .sort();
 
   console.log(`Found ${imageFiles.length} images to upload`);
@@ -26,10 +26,10 @@ async function uploadImages() {
     return;
   }
 
-  const bucketExists = buckets.some(b => b.name === 'gallery-images');
+  const bucketExists = buckets.some(b => b.name === 'gallery');
 
   if (!bucketExists) {
-    const { data, error } = await supabase.storage.createBucket('gallery-images', {
+    const { error } = await supabase.storage.createBucket('gallery', {
       public: true,
       fileSizeLimit: 10485760,
     });
@@ -38,54 +38,67 @@ async function uploadImages() {
       console.error('Error creating bucket:', error);
       return;
     }
-    console.log('Created gallery-images bucket');
+    console.log('✓ Created gallery bucket (public)');
+  } else {
+    console.log('✓ Gallery bucket exists');
   }
 
-  const uploadedUrls = [];
   let successCount = 0;
   let failCount = 0;
 
   for (let i = 0; i < imageFiles.length; i++) {
     const filename = imageFiles[i];
     const filePath = path.join(publicDir, filename);
+    const storagePath = `maite-maria/${filename}`;
 
     try {
       const fileBuffer = fs.readFileSync(filePath);
+      const stats = fs.statSync(filePath);
 
-      const { data, error } = await supabase.storage
-        .from('gallery-images')
-        .upload(filename, fileBuffer, {
+      const { error: uploadError } = await supabase.storage
+        .from('gallery')
+        .upload(storagePath, fileBuffer, {
           contentType: filename.endsWith('.png') ? 'image/png' : 'image/jpeg',
           upsert: true
         });
 
-      if (error) {
-        console.error(`Failed to upload ${filename}:`, error.message);
+      if (uploadError) {
+        console.error(`Failed to upload ${filename}:`, uploadError.message);
         failCount++;
-      } else {
-        const { data: urlData } = supabase.storage
-          .from('gallery-images')
-          .getPublicUrl(filename);
+        continue;
+      }
 
-        uploadedUrls.push(urlData.publicUrl);
-        successCount++;
+      const { error: dbError } = await supabase
+        .from('images')
+        .upsert({
+          bucket: 'gallery',
+          path: storagePath,
+          title: filename.replace(/\.(jpg|png)$/i, '').replace(/-/g, ' '),
+          tags: ['maite-maria-raphasha', 'unveiling-ceremony'],
+          bytes: stats.size
+        }, {
+          onConflict: 'path'
+        });
 
-        if (successCount % 10 === 0) {
-          console.log(`Uploaded ${successCount}/${imageFiles.length} images...`);
-        }
+      if (dbError) {
+        console.error(`Failed to save metadata for ${filename}:`, dbError.message);
+      }
+
+      successCount++;
+
+      if (successCount % 10 === 0) {
+        console.log(`Uploaded ${successCount}/${imageFiles.length} images...`);
       }
     } catch (err) {
-      console.error(`Error reading ${filename}:`, err.message);
+      console.error(`Error processing ${filename}:`, err.message);
       failCount++;
     }
   }
 
-  console.log(`\nUpload complete!`);
-  console.log(`Success: ${successCount}, Failed: ${failCount}`);
-
-  const imageDataContent = `export const images = [\n  '${uploadedUrls.join("',\\n  '")}'\n];\n`;
-  fs.writeFileSync(path.join(__dirname, 'src', 'imageData.ts'), imageDataContent);
-  console.log('Updated imageData.ts with Supabase URLs');
+  console.log(`\n✓ Upload complete!`);
+  console.log(`  Success: ${successCount}`);
+  console.log(`  Failed: ${failCount}`);
+  console.log('\nNext step: Run npm run generate-urls to update the gallery');
 }
 
 uploadImages().catch(console.error);
