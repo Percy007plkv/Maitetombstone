@@ -1,19 +1,39 @@
-import { images } from './imageData';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Download, ShoppingCart, Heart, Share2, Play } from 'lucide-react';
 import JSZip from 'jszip';
 import { Hero } from './components/Hero';
 import { GalleryImage } from './components/GalleryImage';
 import { ImageViewer } from './components/ImageViewer';
-import { getImageUrl } from './lib/supabase';
+import { getImageUrl, supabase } from './lib/supabase';
 import type { ImageData } from './types';
 
 function App() {
+  const [images, setImages] = useState<ImageData[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [visibleCount, setVisibleCount] = useState(24);
   const galleryRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    async function fetchImages() {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('images')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching images:', error);
+      } else if (data) {
+        setImages(data);
+      }
+      setLoading(false);
+    }
+
+    fetchImages();
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -61,7 +81,7 @@ function App() {
 
       for (let i = 0; i < images.length; i++) {
         try {
-          const img = images[i] as ImageData;
+          const img = images[i];
           const url = getImageUrl(img.bucket, img.path, { format: 'origin' });
           const response = await fetch(url);
           const blob = await response.blob();
@@ -86,7 +106,7 @@ function App() {
     } finally {
       setIsDownloading(false);
     }
-  }, []);
+  }, [images]);
 
   const navigateImage = useCallback((direction: 'prev' | 'next') => {
     setSelectedIndex((current) => {
@@ -98,12 +118,42 @@ function App() {
     });
   }, []);
 
-  const visibleImages = (images as ImageData[]).slice(0, visibleCount);
+  const visibleImages = images.slice(0, visibleCount);
   const selectedImage = selectedIndex !== null ? images[selectedIndex] : null;
 
   const firstImageUrl = images[0]
-    ? getImageUrl((images[0] as ImageData).bucket, (images[0] as ImageData).path, { width: 1920, quality: 85 })
+    ? getImageUrl(images[0].bucket, images[0].path, { width: 1920, quality: 85 })
     : '';
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading gallery...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (images.length === 0) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center max-w-md px-4">
+          <h2 className="text-2xl font-serif text-gray-900 mb-4">No Images Yet</h2>
+          <p className="text-gray-600 mb-6">
+            Upload your images to Supabase Storage to get started.
+          </p>
+          <div className="bg-gray-50 rounded-lg p-4 text-left text-sm">
+            <p className="font-medium mb-2">Quick setup:</p>
+            <code className="block bg-gray-900 text-green-400 p-2 rounded">
+              npm run upload-images
+            </code>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -195,13 +245,13 @@ function App() {
 
       {selectedImage !== null && selectedIndex !== null && (
         <ImageViewer
-          image={getImageUrl((selectedImage as ImageData).bucket, (selectedImage as ImageData).path, { width: 1920, quality: 85 })}
+          image={getImageUrl(selectedImage.bucket, selectedImage.path, { width: 1920, quality: 85 })}
           currentIndex={selectedIndex}
           totalImages={images.length}
           onClose={() => setSelectedIndex(null)}
           onNext={() => navigateImage('next')}
           onPrev={() => navigateImage('prev')}
-          onDownload={() => handleDownload(getImageUrl((selectedImage as ImageData).bucket, (selectedImage as ImageData).path, { format: 'origin' }))}
+          onDownload={() => handleDownload(getImageUrl(selectedImage.bucket, selectedImage.path, { format: 'origin' }))}
         />
       )}
     </div>
