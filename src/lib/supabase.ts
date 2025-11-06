@@ -5,7 +5,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-const PROJECT_REF = 'wqyasyjvpsnwahpltlpx';
+const PROJECT_REF = 'bufdshaubdrbdokwcihz';
 const RENDER_BASE = `https://${PROJECT_REF}.supabase.co/storage/v1/render/image/public`;
 const ORIGIN_BASE = `https://${PROJECT_REF}.supabase.co/storage/v1/object/public`;
 
