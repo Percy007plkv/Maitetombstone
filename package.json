@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "upload-images": "node upload-to-supabase.js",
-    "generate-urls": "node generate-urls.js"
+    "generate-urls": "node generate-urls.js",
+    "import-cloudinary": "node import-cloudinary-to-db.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",

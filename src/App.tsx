@@ -4,7 +4,7 @@ import JSZip from 'jszip';
 import { Hero } from './components/Hero';
 import { GalleryImage } from './components/GalleryImage';
 import { ImageViewer } from './components/ImageViewer';
-import { getImageUrl, supabase } from './lib/supabase';
+import { getImageUrl, getResponsiveUrls, supabase } from './lib/supabase';
 import type { ImageData } from './types';
 
 function App() {
@@ -82,10 +82,10 @@ function App() {
       for (let i = 0; i < images.length; i++) {
         try {
           const img = images[i];
-          const url = getImageUrl(img.bucket, img.path, { format: 'origin' });
-          const response = await fetch(url);
+          const urls = getResponsiveUrls(img);
+          const response = await fetch(urls.original);
           const blob = await response.blob();
-          const filename = img.path.split('/').pop() || `image-${i + 1}.jpg`;
+          const filename = img.public_id?.split('/').pop() || img.path?.split('/').pop() || `image-${i + 1}.jpg`;
           folder?.file(filename, blob);
         } catch (error) {
           console.error(`Failed to download image ${i + 1}:`, error);
@@ -122,7 +122,7 @@ function App() {
   const selectedImage = selectedIndex !== null ? images[selectedIndex] : null;
 
   const firstImageUrl = images[0]
-    ? getImageUrl(images[0].bucket, images[0].path, { width: 1920, quality: 85 })
+    ? (images[0].cloudinary_urls?.w1280 || getImageUrl(images[0].bucket!, images[0].path!, { width: 1920, quality: 85 }))
     : '';
 
   if (loading) {
@@ -208,21 +208,18 @@ function App() {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {visibleImages.map((img, index) => {
-            const thumbUrl = getImageUrl(img.bucket, img.path, { width: 480, quality: 75 });
-            const mediumUrl = getImageUrl(img.bucket, img.path, { width: 960, quality: 75 });
-            const largeUrl = getImageUrl(img.bucket, img.path, { width: 1280, quality: 75 });
-            const originalUrl = getImageUrl(img.bucket, img.path, { format: 'origin' });
+            const urls = getResponsiveUrls(img);
 
             return (
               <GalleryImage
                 key={img.id}
-                thumbUrl={thumbUrl}
-                mediumUrl={mediumUrl}
-                largeUrl={largeUrl}
+                thumbUrl={urls.thumb}
+                mediumUrl={urls.medium}
+                largeUrl={urls.large}
                 title={img.title || ''}
                 index={index}
                 onView={() => setSelectedIndex(index)}
-                onDownload={() => handleDownload(originalUrl)}
+                onDownload={() => handleDownload(urls.original)}
               />
             );
           })}
@@ -245,13 +242,13 @@ function App() {
 
       {selectedImage !== null && selectedIndex !== null && (
         <ImageViewer
-          image={getImageUrl(selectedImage.bucket, selectedImage.path, { width: 1920, quality: 85 })}
+          image={getResponsiveUrls(selectedImage).large}
           currentIndex={selectedIndex}
           totalImages={images.length}
           onClose={() => setSelectedIndex(null)}
           onNext={() => navigateImage('next')}
           onPrev={() => navigateImage('prev')}
-          onDownload={() => handleDownload(getImageUrl(selectedImage.bucket, selectedImage.path, { format: 'origin' }))}
+          onDownload={() => handleDownload(getResponsiveUrls(selectedImage).original)}
         />
       )}
     </div>
