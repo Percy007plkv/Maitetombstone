@@ -35,14 +35,15 @@ export function GalleryImage({
         </div>
       ) : (
         <img
-          src={mediumUrl}
-          srcSet={`${thumbUrl} 480w, ${mediumUrl} 960w, ${largeUrl} 1280w`}
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+          src={thumbUrl}
+          srcSet={`${thumbUrl} 480w, ${mediumUrl} 960w`}
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
           alt={title || `Gallery image ${index + 1}`}
-          className={`w-full h-auto transition-all duration-500 ${
+          className={`w-full h-auto transition-all duration-300 ${
             isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
           } group-hover:scale-105`}
           loading="lazy"
+          decoding="async"
           onLoad={() => setIsLoaded(true)}
           onError={() => setHasError(true)}
           onClick={onView}

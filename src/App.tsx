@@ -12,7 +12,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(24);
+  const [visibleCount, setVisibleCount] = useState(50);
   const galleryRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -39,10 +39,10 @@ function App() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && visibleCount < images.length) {
-          setVisibleCount((prev) => Math.min(prev + 24, images.length));
+          setVisibleCount((prev) => Math.min(prev + 50, images.length));
         }
       },
-      { rootMargin: '200px' }
+      { rootMargin: '400px' }
     );
 
     if (loadMoreRef.current) {
@@ -50,7 +50,7 @@ function App() {
     }
 
     return () => observer.disconnect();
-  }, [visibleCount]);
+  }, [visibleCount, images.length]);
 
   const scrollToGallery = useCallback(() => {
     galleryRef.current?.scrollIntoView({ behavior: 'smooth' });
