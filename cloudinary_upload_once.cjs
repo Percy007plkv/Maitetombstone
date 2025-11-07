@@ -18,10 +18,10 @@ const path = require("path");
 const fg = require("fast-glob");
 const cloudinary = require("cloudinary").v2;
 
-const CLOUD_NAME = process.env. decsamozj;
-const API_KEY    = 497716188274956;
-const API_SECRET = ImQGlf2O9Yb9aQZCCBakuIDQQX4;
-const FOLDER     = cloudinary://< 497716188274956>:< ImQGlf2O9Yb9aQZCCBakuIDQQX4>@decsamozj;
+const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || "decsamozj";
+const API_KEY    = process.env.CLOUDINARY_API_KEY || "497716188274956";
+const API_SECRET = process.env.CLOUDINARY_API_SECRET || "ImQGlf2O9Yb9aQZCCBakuIDQQX4";
+const FOLDER     = process.env.CLOUDINARY_FOLDER || "Maite";
 
 if (!CLOUD_NAME || !API_KEY || !API_SECRET) {
   console.error("❌ Missing Cloudinary credentials. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET.");
