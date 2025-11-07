@@ -37,7 +37,7 @@ export function GalleryImage({
         <img
           src={thumbUrl}
           srcSet={`${thumbUrl} 480w, ${mediumUrl} 960w`}
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
           alt={title || `Gallery image ${index + 1}`}
           className={`w-full h-auto transition-all duration-300 ${
             isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'

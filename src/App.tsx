@@ -213,7 +213,7 @@ function App() {
           </div>
         </div>
 
-        <MasonryGrid columns={{ default: 1, sm: 2, lg: 3, xl: 3 }} gap={16}>
+        <MasonryGrid columns={{ default: 2, sm: 2, lg: 3, xl: 3 }} gap={16}>
           {visibleImages.map((img, index) => {
             const urls = getResponsiveUrls(img);
 
