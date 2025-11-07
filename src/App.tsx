@@ -4,6 +4,7 @@ import JSZip from 'jszip';
 import { Hero } from './components/Hero';
 import { GalleryImage } from './components/GalleryImage';
 import { ImageViewer } from './components/ImageViewer';
+import { MasonryGrid } from './components/MasonryGrid';
 import { getImageUrl, getResponsiveUrls, supabase } from './lib/supabase';
 import type { ImageData } from './types';
 
@@ -22,7 +23,7 @@ function App() {
       const { data, error } = await supabase
         .from('images')
         .select('*')
-        .order('created_at', { ascending: true });
+        .order('title', { ascending: true });
 
       if (error) {
         console.error('Error fetching images:', error);
@@ -206,25 +207,24 @@ function App() {
           </div>
         </div>
 
-        <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3">
+        <MasonryGrid columns={{ default: 2, sm: 3, lg: 4, xl: 5 }} gap={12}>
           {visibleImages.map((img, index) => {
             const urls = getResponsiveUrls(img);
 
             return (
-              <div key={img.id} className="break-inside-avoid mb-3">
-                <GalleryImage
-                  thumbUrl={urls.thumb}
-                  mediumUrl={urls.medium}
-                  largeUrl={urls.large}
-                  title={img.title || ''}
-                  index={index}
-                  onView={() => setSelectedIndex(index)}
-                  onDownload={() => handleDownload(urls.original)}
-                />
-              </div>
+              <GalleryImage
+                key={img.id}
+                thumbUrl={urls.thumb}
+                mediumUrl={urls.medium}
+                largeUrl={urls.large}
+                title={img.title || ''}
+                index={index}
+                onView={() => setSelectedIndex(index)}
+                onDownload={() => handleDownload(urls.original)}
+              />
             );
           })}
-        </div>
+        </MasonryGrid>
 
         {visibleCount < images.length && (
           <div ref={loadMoreRef} className="h-24 flex items-center justify-center mt-8">
