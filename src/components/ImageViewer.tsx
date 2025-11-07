@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { X, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ImageViewerProps {
   image: string;
   currentIndex: number;
   totalImages: number;
+  nextImage?: string;
+  prevImage?: string;
   onClose: () => void;
   onNext: () => void;
   onPrev: () => void;
@@ -15,11 +17,19 @@ export function ImageViewer({
   image,
   currentIndex,
   totalImages,
+  nextImage,
+  prevImage,
   onClose,
   onNext,
   onPrev,
   onDownload,
 }: ImageViewerProps) {
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    setLoaded(false);
+  }, [image]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -30,6 +40,17 @@ export function ImageViewer({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose, onNext, onPrev]);
+
+  useEffect(() => {
+    if (nextImage) {
+      const img = new Image();
+      img.src = nextImage;
+    }
+    if (prevImage) {
+      const img = new Image();
+      img.src = prevImage;
+    }
+  }, [nextImage, prevImage]);
 
   return (
     <div
@@ -81,12 +102,19 @@ export function ImageViewer({
         {currentIndex + 1} / {totalImages}
       </div>
 
-      <img
-        src={image}
-        alt={`Image ${currentIndex + 1}`}
-        className="max-w-[95vw] max-h-[95vh] object-contain"
-        onClick={(e) => e.stopPropagation()}
-      />
+      <div className="relative max-w-[95vw] max-h-[95vh]" onClick={(e) => e.stopPropagation()}>
+        {!loaded && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          </div>
+        )}
+        <img
+          src={image}
+          alt={`Image ${currentIndex + 1}`}
+          className={`max-w-[95vw] max-h-[95vh] object-contain transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+          onLoad={() => setLoaded(true)}
+        />
+      </div>
     </div>
   );
 }

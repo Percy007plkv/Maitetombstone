@@ -117,7 +117,7 @@ function App() {
       }
       return current < images.length - 1 ? current + 1 : 0;
     });
-  }, []);
+  }, [images.length]);
 
   const visibleImages = images.slice(0, visibleCount);
   const selectedImage = selectedIndex !== null ? images[selectedIndex] : null;
@@ -246,6 +246,16 @@ function App() {
           image={getResponsiveUrls(selectedImage).large}
           currentIndex={selectedIndex}
           totalImages={images.length}
+          nextImage={
+            selectedIndex < images.length - 1
+              ? getResponsiveUrls(images[selectedIndex + 1]).large
+              : getResponsiveUrls(images[0]).large
+          }
+          prevImage={
+            selectedIndex > 0
+              ? getResponsiveUrls(images[selectedIndex - 1]).large
+              : getResponsiveUrls(images[images.length - 1]).large
+          }
           onClose={() => setSelectedIndex(null)}
           onNext={() => navigateImage('next')}
           onPrev={() => navigateImage('prev')}
