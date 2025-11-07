@@ -131,8 +131,13 @@ function App() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading gallery...</p>
+          <div className="relative inline-block">
+            <div className="animate-spin rounded-full h-24 w-24 border-4 border-gray-200 border-t-[#8A9876] mx-auto"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <img src="/LOGO PLKV with shadow.png" alt="Loading" className="w-12 h-12 object-contain" />
+            </div>
+          </div>
+          <p className="text-gray-600 mt-6 text-sm tracking-wide">Loading gallery...</p>
         </div>
       </div>
     );
