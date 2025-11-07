@@ -18,10 +18,13 @@ export function Hero({ heroImage, onViewGallery }: HeroProps) {
       <div className="max-w-5xl mx-auto px-4 md:px-6 -mt-56 relative z-10">
         <div className="bg-white/95 backdrop-blur-sm py-12 md:py-16 px-6 md:px-12 text-center shadow-2xl">
           <div className="mb-4">
-            <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="flex items-center justify-center gap-4 mb-4">
               <div className="w-16 h-16 flex items-center justify-center">
                 <img src="/LOGO PLKV with shadow.png" alt="Polokwane Videography Logo" className="w-full h-full object-contain" />
               </div>
+              <span className="text-sm tracking-[0.2em] text-gray-700 uppercase font-medium">
+                POLOKWANE VIDEOGRAPHER
+              </span>
             </div>
             <p className="text-xs tracking-[0.2em] text-gray-500 uppercase mb-2">
               September 24th, 2023
