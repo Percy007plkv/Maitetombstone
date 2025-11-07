@@ -39,10 +39,12 @@ export function MasonryGrid({
   }, [columns]);
 
   const columnWrappers: ReactNode[][] = Array.from({ length: columnCount }, () => []);
+  const columnHeights: number[] = Array.from({ length: columnCount }, () => 0);
 
-  children.forEach((child, index) => {
-    const columnIndex = index % columnCount;
-    columnWrappers[columnIndex].push(child);
+  children.forEach((child) => {
+    const shortestColumnIndex = columnHeights.indexOf(Math.min(...columnHeights));
+    columnWrappers[shortestColumnIndex].push(child);
+    columnHeights[shortestColumnIndex] += 1;
   });
 
   return (
