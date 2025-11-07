@@ -122,9 +122,10 @@ function App() {
   const visibleImages = images.slice(0, visibleCount);
   const selectedImage = selectedIndex !== null ? images[selectedIndex] : null;
 
-  const firstImageUrl = images[0]
-    ? (images[0].cloudinary_urls?.w1280 || getImageUrl(images[0].bucket!, images[0].path!, { width: 1920, quality: 85 }))
-    : '';
+  const heroImage = images.find(img => img.public_id?.includes('P1167526'));
+  const heroImageUrl = heroImage
+    ? (heroImage.cloudinary_urls?.w1280 || getImageUrl(heroImage.bucket!, heroImage.path!, { width: 1920, quality: 85 }))
+    : (images[0] ? (images[0].cloudinary_urls?.w1280 || getImageUrl(images[0].bucket!, images[0].path!, { width: 1920, quality: 85 })) : '');
 
   if (loading) {
     return (
@@ -158,7 +159,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Hero heroImage={firstImageUrl} onViewGallery={scrollToGallery} />
+      <Hero heroImage={heroImageUrl} onViewGallery={scrollToGallery} />
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-16" ref={galleryRef}>
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-6">
