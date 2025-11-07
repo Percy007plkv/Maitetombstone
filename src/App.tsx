@@ -4,7 +4,6 @@ import JSZip from 'jszip';
 import { Hero } from './components/Hero';
 import { GalleryImage } from './components/GalleryImage';
 import { ImageViewer } from './components/ImageViewer';
-import { MasonryGrid } from './components/MasonryGrid';
 import { getImageUrl, getResponsiveUrls, supabase } from './lib/supabase';
 import type { ImageData } from './types';
 
@@ -23,7 +22,7 @@ function App() {
       const { data, error } = await supabase
         .from('images')
         .select('*')
-        .order('title', { ascending: true });
+        .order('display_order', { ascending: true });
 
       if (error) {
         console.error('Error fetching images:', error);
@@ -213,7 +212,7 @@ function App() {
           </div>
         </div>
 
-        <MasonryGrid columns={{ default: 2, sm: 3, lg: 4, xl: 5 }} gap={12}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {visibleImages.map((img, index) => {
             const urls = getResponsiveUrls(img);
 
@@ -230,7 +229,7 @@ function App() {
               />
             );
           })}
-        </MasonryGrid>
+        </div>
 
         {visibleCount < images.length && (
           <div ref={loadMoreRef} className="h-24 flex items-center justify-center mt-8">

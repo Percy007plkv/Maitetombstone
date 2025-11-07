@@ -13,8 +13,8 @@ interface MasonryGridProps {
 
 export function MasonryGrid({
   children,
-  columns = { default: 2, sm: 3, lg: 4, xl: 5 },
-  gap = 12
+  columns = { default: 1, sm: 2, lg: 3, xl: 3 },
+  gap = 16
 }: MasonryGridProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [columnCount, setColumnCount] = useState(columns.default);
