@@ -105,7 +105,12 @@ export function ImageViewer({
       <div className="relative max-w-[95vw] max-h-[95vh]" onClick={(e) => e.stopPropagation()}>
         {!loaded && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            <div className="relative inline-block">
+              <div className="animate-spin rounded-full h-20 w-20 border-4 border-white/20 border-t-white"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <img src="/LOGO PLKV with shadow.png" alt="Loading" className="w-10 h-10 object-contain" />
+              </div>
+            </div>
           </div>
         )}
         <img
