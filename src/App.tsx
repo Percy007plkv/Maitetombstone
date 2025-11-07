@@ -206,21 +206,22 @@ function App() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+        <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3">
           {visibleImages.map((img, index) => {
             const urls = getResponsiveUrls(img);
 
             return (
-              <GalleryImage
-                key={img.id}
-                thumbUrl={urls.thumb}
-                mediumUrl={urls.medium}
-                largeUrl={urls.large}
-                title={img.title || ''}
-                index={index}
-                onView={() => setSelectedIndex(index)}
-                onDownload={() => handleDownload(urls.original)}
-              />
+              <div key={img.id} className="break-inside-avoid mb-3">
+                <GalleryImage
+                  thumbUrl={urls.thumb}
+                  mediumUrl={urls.medium}
+                  largeUrl={urls.large}
+                  title={img.title || ''}
+                  index={index}
+                  onView={() => setSelectedIndex(index)}
+                  onDownload={() => handleDownload(urls.original)}
+                />
+              </div>
             );
           })}
         </div>
