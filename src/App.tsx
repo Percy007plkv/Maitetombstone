@@ -173,7 +173,7 @@ function App() {
               Maite Maria Raphasha
             </h2>
             <p className="text-sm text-gray-500 tracking-wide">
-              Unveiling Tombstone Ceremony • {images.length} Photos
+              Unveiling Tombstone Ceremony • September 27, 2025 • {images.length} Photos
             </p>
           </div>
 
