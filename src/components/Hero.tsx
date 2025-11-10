@@ -27,7 +27,7 @@ export function Hero({ heroImage, onViewGallery }: HeroProps) {
               </span>
             </div>
             <p className="text-xs tracking-[0.2em] text-gray-500 uppercase mb-2">
-              September 24th, 2023
+              September 27, 2025
             </p>
           </div>
 
