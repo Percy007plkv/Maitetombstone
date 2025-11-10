@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Download, ShoppingCart, Heart, Share2, Play } from 'lucide-react';
+import { Download, Heart, Share2, Play } from 'lucide-react';
 import JSZip from 'jszip';
 import { Hero } from './components/Hero';
 import { GalleryImage } from './components/GalleryImage';
@@ -178,12 +178,6 @@ function App() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button
-              className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all"
-              aria-label="Shopping cart"
-            >
-              <ShoppingCart size={20} />
-            </button>
             <button
               className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all"
               aria-label="Favorites"
