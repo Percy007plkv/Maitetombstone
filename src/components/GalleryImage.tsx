@@ -24,7 +24,10 @@ export function GalleryImage({
   const [hasError, setHasError] = useState(false);
 
   return (
-    <div className="group relative overflow-hidden bg-gray-100 rounded-sm cursor-pointer">
+    <div
+      className="group relative overflow-hidden bg-gray-100 rounded-sm cursor-pointer"
+      onDoubleClick={onView}
+    >
       {!isLoaded && !hasError && (
         <div className="absolute inset-0 animate-pulse bg-gray-200" />
       )}
@@ -46,7 +49,6 @@ export function GalleryImage({
           decoding="async"
           onLoad={() => setIsLoaded(true)}
           onError={() => setHasError(true)}
-          onClick={onView}
         />
       )}
 
