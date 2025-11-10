@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Download, Heart, Share2, Maximize2 } from 'lucide-react';
 
 interface GalleryImageProps {
@@ -22,9 +22,30 @@ export function GalleryImage({
 }: GalleryImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const imgRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShouldLoad(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div
+      ref={imgRef}
       className="group relative overflow-hidden bg-gray-100 rounded-sm cursor-pointer"
       onDoubleClick={onView}
     >
@@ -36,7 +57,7 @@ export function GalleryImage({
         <div className="aspect-[3/4] flex items-center justify-center text-gray-400 text-sm">
           Failed to load
         </div>
-      ) : (
+      ) : shouldLoad ? (
         <img
           src={thumbUrl}
           srcSet={`${thumbUrl} 480w, ${mediumUrl} 960w`}
@@ -50,6 +71,8 @@ export function GalleryImage({
           onLoad={() => setIsLoaded(true)}
           onError={() => setHasError(true)}
         />
+      ) : (
+        <div className="aspect-[3/4]" />
       )}
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

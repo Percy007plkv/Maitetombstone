@@ -1,12 +1,12 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
 import { Download, Heart, Share2, Play } from 'lucide-react';
-import JSZip from 'jszip';
 import { Hero } from './components/Hero';
 import { GalleryImage } from './components/GalleryImage';
-import { ImageViewer } from './components/ImageViewer';
 import { MasonryGrid } from './components/MasonryGrid';
 import { getImageUrl, getResponsiveUrls, supabase } from './lib/supabase';
 import type { ImageData } from './types';
+
+const ImageViewer = lazy(() => import('./components/ImageViewer'));
 
 function App() {
   const [images, setImages] = useState<ImageData[]>([]);
@@ -22,7 +22,7 @@ function App() {
       setLoading(true);
       const { data, error } = await supabase
         .from('images')
-        .select('*')
+        .select('id, title, public_id, path, bucket, cloudinary_urls, display_order')
         .order('display_order', { ascending: true });
 
       if (error) {
@@ -77,6 +77,7 @@ function App() {
   const handleDownloadAll = useCallback(async () => {
     setIsDownloading(true);
     try {
+      const JSZip = (await import('jszip')).default;
       const zip = new JSZip();
       const folder = zip.folder('maite-maria-raphasha-photos');
 
@@ -242,25 +243,27 @@ function App() {
       </div>
 
       {selectedImage !== null && selectedIndex !== null && (
-        <ImageViewer
-          image={getResponsiveUrls(selectedImage).large}
-          currentIndex={selectedIndex}
-          totalImages={images.length}
-          nextImage={
-            selectedIndex < images.length - 1
-              ? getResponsiveUrls(images[selectedIndex + 1]).large
-              : getResponsiveUrls(images[0]).large
-          }
-          prevImage={
-            selectedIndex > 0
-              ? getResponsiveUrls(images[selectedIndex - 1]).large
-              : getResponsiveUrls(images[images.length - 1]).large
-          }
-          onClose={() => setSelectedIndex(null)}
-          onNext={() => navigateImage('next')}
-          onPrev={() => navigateImage('prev')}
-          onDownload={() => handleDownload(getResponsiveUrls(selectedImage).original)}
-        />
+        <Suspense fallback={<div className="fixed inset-0 bg-black/95 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-4 border-white/20 border-t-white"></div></div>}>
+          <ImageViewer
+            image={getResponsiveUrls(selectedImage).large}
+            currentIndex={selectedIndex}
+            totalImages={images.length}
+            nextImage={
+              selectedIndex < images.length - 1
+                ? getResponsiveUrls(images[selectedIndex + 1]).large
+                : getResponsiveUrls(images[0]).large
+            }
+            prevImage={
+              selectedIndex > 0
+                ? getResponsiveUrls(images[selectedIndex - 1]).large
+                : getResponsiveUrls(images[images.length - 1]).large
+            }
+            onClose={() => setSelectedIndex(null)}
+            onNext={() => navigateImage('next')}
+            onPrev={() => navigateImage('prev')}
+            onDownload={() => handleDownload(getResponsiveUrls(selectedImage).original)}
+          />
+        </Suspense>
       )}
     </div>
   );
