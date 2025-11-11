@@ -18,4 +18,18 @@ export interface ImageData {
   height: number | null;
   bytes: number | null;
   created_at: string;
+  event_id: string;
+  display_order: number | null;
+}
+
+export interface Event {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string | null;
+  event_date: string;
+  hero_image_id: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
