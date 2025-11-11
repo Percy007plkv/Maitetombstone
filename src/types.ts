@@ -28,6 +28,7 @@ export interface Event {
   title: string;
   subtitle: string | null;
   event_date: string;
+  location: string | null;
   hero_image_id: string | null;
   is_active: boolean;
   created_at: string;

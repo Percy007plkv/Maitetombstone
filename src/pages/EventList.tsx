@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Image as ImageIcon } from 'lucide-react';
+import { Calendar, Image as ImageIcon, MapPin } from 'lucide-react';
 import { supabase, getImageUrl } from '../lib/supabase';
 import type { Event, ImageData } from '../types';
 
@@ -146,6 +146,12 @@ export function EventList() {
                     </h2>
                     {event.subtitle && (
                       <p className="text-sm text-gray-600 mb-3">{event.subtitle}</p>
+                    )}
+                    {event.location && (
+                      <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-3">
+                        <MapPin size={16} />
+                        <span>{event.location}</span>
+                      </div>
                     )}
                     <div className="flex items-center gap-4 text-sm text-gray-500">
                       <div className="flex items-center gap-1.5">

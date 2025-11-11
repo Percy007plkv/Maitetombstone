@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Download, Heart, Share2, Play, ArrowLeft } from 'lucide-react';
+import { Download, Heart, Share2, Play, ArrowLeft, MapPin } from 'lucide-react';
 import { Hero } from '../components/Hero';
 import { GalleryImage } from '../components/GalleryImage';
 import { MasonryGrid } from '../components/MasonryGrid';
@@ -234,9 +234,22 @@ export function EventGallery() {
             <h2 className="text-3xl md:text-4xl font-serif text-gray-900 mb-1">
               {event?.title}
             </h2>
-            <p className="text-sm text-gray-500 tracking-wide">
-              {event?.subtitle && `${event.subtitle} • `}{eventDate} • {images.length} Photos
-            </p>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 tracking-wide">
+              {event?.subtitle && <span>{event.subtitle}</span>}
+              {event?.location && (
+                <>
+                  {event?.subtitle && <span>•</span>}
+                  <div className="flex items-center gap-1">
+                    <MapPin size={14} />
+                    <span>{event.location}</span>
+                  </div>
+                </>
+              )}
+              {(event?.subtitle || event?.location) && <span>•</span>}
+              <span>{eventDate}</span>
+              <span>•</span>
+              <span>{images.length} Photos</span>
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
